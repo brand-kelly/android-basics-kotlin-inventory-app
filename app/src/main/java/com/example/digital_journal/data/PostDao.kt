@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.inventory.data
+package com.example.digital_journal.data
 
 import androidx.room.Dao
 import androidx.room.Delete
