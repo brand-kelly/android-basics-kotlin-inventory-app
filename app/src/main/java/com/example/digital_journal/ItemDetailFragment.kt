@@ -1,20 +1,6 @@
-/*
- * Copyright (C) 2021 The Android Open Source Project.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
-package com.example.inventory
+
+package com.example.digital_journal
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -24,9 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.inventory.data.Item
-import com.example.inventory.data.getFormattedPrice
-import com.example.inventory.databinding.FragmentItemDetailBinding
+import com.example.digital_journal.data.Post
+import com.example.digital_journal.databinding.FragmentItemDetailBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
@@ -34,11 +19,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  */
 class ItemDetailFragment : Fragment() {
     private val navigationArgs: ItemDetailFragmentArgs by navArgs()
-    lateinit var item: Item
+    lateinit var post: Post
 
     private val viewModel: InventoryViewModel by activityViewModels {
         InventoryViewModelFactory(
-            (activity?.application as InventoryApplication).database.itemDao()
+            (activity?.application as DigitalJournalApplication).database.postDao()
         )
     }
 
@@ -57,13 +42,9 @@ class ItemDetailFragment : Fragment() {
     /**
      * Binds views with the passed in item data.
      */
-    private fun bind(item: Item) {
+    private fun bind(post: Post) {
         binding.apply {
-            itemName.text = item.itemName
-            itemPrice.text = item.getFormattedPrice()
-            itemCount.text = item.quantityInStock.toString()
-            sellItem.isEnabled = viewModel.isStockAvailable(item)
-            sellItem.setOnClickListener { viewModel.sellItem(item) }
+            itemPost.text = post.itemPost
             deleteItem.setOnClickListener { showConfirmationDialog() }
             editItem.setOnClickListener { editItem() }
         }
@@ -75,7 +56,7 @@ class ItemDetailFragment : Fragment() {
     private fun editItem() {
         val action = ItemDetailFragmentDirections.actionItemDetailFragmentToAddItemFragment(
             getString(R.string.edit_fragment_title),
-            item.id
+            post.id
         )
         this.findNavController().navigate(action)
     }
@@ -99,7 +80,7 @@ class ItemDetailFragment : Fragment() {
      * Deletes the current item and navigates to the list fragment.
      */
     private fun deleteItem() {
-        viewModel.deleteItem(item)
+        viewModel.deleteItem(post)
         findNavController().navigateUp()
     }
 
@@ -110,8 +91,8 @@ class ItemDetailFragment : Fragment() {
         // Attach an observer on the data (instead of polling for changes) and only update the
         // the UI when the data actually changes.
         viewModel.retrieveItem(id).observe(this.viewLifecycleOwner) { selectedItem ->
-            item = selectedItem
-            bind(item)
+            post = selectedItem
+            bind(post)
         }
     }
 
